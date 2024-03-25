@@ -9,7 +9,7 @@
         <property name="connection.username">sa</property>
         <property name="connection.password"></property>
         <!-- JDBC connection pool settings ... using built-in test pool -->
-        <property name="connection.pool_size">1</property>
+        <property name="connection.pool_size">3</property>
         <!-- Select our SQL dialect -->
         <property name="dialect">org.hibernate.dialect.H2Dialect</property>
         <!-- Echo the SQL to stdout -->
@@ -25,8 +25,13 @@
         <property name="hibernate.dbcp.minIdle">5</property>
         <property name="hibernate.dbcp.maxWaitMillis">-1</property>
 
-        <mapping class="lt.viko.eif.pvaiciulis.studentdata.model.Account" />
-        <mapping class="lt.viko.eif.pvaiciulis.studentdata.model.Student" />
-        <mapping class="lt.viko.eif.pvaiciulis.studentdata.model.Subject" />
+<!--        <property name="show_sql">true</property>-->
+
+        <mapping class="lt.viko.eif.pvaiciulis.storedata.model.product.QuantifiableProduct" />
+        <mapping class="lt.viko.eif.pvaiciulis.storedata.model.product.EntityProduct" />
+        <mapping class="lt.viko.eif.pvaiciulis.storedata.model.discount.DiscountCard" />
+        <mapping class="lt.viko.eif.pvaiciulis.storedata.model.Receipt" />
+        <mapping class="lt.viko.eif.pvaiciulis.storedata.model.Person" />
+        <mapping class="lt.viko.eif.pvaiciulis.storedata.model.discount.Discount" />
     </session-factory>
 </hibernate-configuration>

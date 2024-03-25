@@ -27,10 +27,18 @@
             <artifactId>hibernate-core</artifactId>
             <version>5.4.24.Final</version>
         </dependency>
-
         <dependency>
-            <groupId>mysq</groupId>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
         </dependency>
+
+        <!--        <dependency>-->
+<!--            <groupId>mysq</groupId>-->
+<!--        </dependency>-->
+
+
 
     </dependencies>
 
