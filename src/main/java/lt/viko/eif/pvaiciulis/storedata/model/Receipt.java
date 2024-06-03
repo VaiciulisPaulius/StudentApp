@@ -1,18 +1,17 @@
 package lt.viko.eif.pvaiciulis.storedata.model;
 
 import lt.viko.eif.pvaiciulis.storedata.db.DBLoader;
+import lt.viko.eif.pvaiciulis.storedata.db.DBOperations;
 import lt.viko.eif.pvaiciulis.storedata.model.discount.Discount;
 import lt.viko.eif.pvaiciulis.storedata.model.discount.DiscountCard;
 import lt.viko.eif.pvaiciulis.storedata.model.product.EntityProduct;
 import lt.viko.eif.pvaiciulis.storedata.model.product.QuantifiableProduct;
-import lt.viko.eif.pvaiciulis.storedata.old.Subject;
+import lt.viko.eif.pvaiciulis.storedata.util.LocalDateTimeAdapter;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
-import java.sql.Date;
-import java.sql.Time;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,19 +37,40 @@ public class Receipt {
 
     public Receipt() {
     }
+
     @XmlElement
-    private LocalDateTime timestamp;
+    @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
+    private LocalDateTime timeOfPurchase;
     @XmlElement
     private double subtotal;
     @XmlElement
     private double total;
 
+    /**
+     * Returns a string representation of the object 'Receipt'.
+     *
+     * @return a string representation of the object
+     */
+    @Override
+    public String toString() {
+        return String.format("Receipt:\n" + "\tid: %s\n" + "\tProducts: \n%s\n" + "\tDiscount card: \n%s\n" + "\tTime of purchase: %s\n" + "\tsubtotal: %s\n" + "\ttotal: %s\n",
+                id, constructProductsList(), discountCard, timeOfPurchase.toString(), subtotal, total);
+    }
+
+    private String constructProductsList() {
+        String result = "";
+        for(QuantifiableProduct product : products)
+            result += product;
+        return result;
+    }
+
     public void scanProduct(int barCode) {
-        EntityProduct product = DBLoader.getProduct(barCode);
+        EntityProduct product = DBOperations.getProduct(barCode);
         if (product instanceof QuantifiableProduct) {
             products.add((QuantifiableProduct) product);
-            subtotal += product.getPrice();
-            applyDiscount(product);
+            QuantifiableProduct quantProduct = (QuantifiableProduct) product;
+            subtotal += quantProduct.calculatePrice();
+            applyDiscount(quantProduct);
         }
         else if(product instanceof DiscountCard) {
             discountCard = (DiscountCard) product;
@@ -60,25 +80,30 @@ public class Receipt {
         }
     }
     public void applyDiscount(EntityProduct product) {
-        Discount discount = DBLoader.checkDiscount(product);
-        System.out.println("Total: " + total);
+        Discount discount = DBOperations.checkDiscount(product);
         if(discount == null) {
-            total += product.getPrice();
+            if(product instanceof QuantifiableProduct) {
+                total += ((QuantifiableProduct) product).calculatePrice();
+            }
+            else total += product.getPrice();
             return;
         }
 
         if(discount.getCategory() != null) {
-            System.out.println("Check 1");
             if(discountCard == null) {
-                total += product.getPrice();
+                if(product instanceof QuantifiableProduct) {
+                    total += ((QuantifiableProduct) product).calculatePrice();
+                }
+                else total += product.getPrice();
                 return;
+            };
+            if(discountCard.getCategory() == discount.getCategory()) {
+                if(product instanceof QuantifiableProduct) {
+                    total += discount.getDiscountPrice() * ((QuantifiableProduct) product).calculatePrice();
+                }
+                total += discount.getDiscountPrice();
             }
-            System.out.println("Check 2: " + discount.getDiscountPrice() + " " + discountCard.getCategory() + " " + discount.getCategory());
-
-            if(discountCard.getCategory() == discount.getCategory()) total += discount.getDiscountPrice();
-            System.out.println("Check 3");
         }
-        System.out.println(total);
     }
 
     public List<QuantifiableProduct> getProducts() {
@@ -98,11 +123,11 @@ public class Receipt {
     }
 
     public LocalDateTime getTimestamp() {
-        return timestamp;
+        return timeOfPurchase;
     }
 
     public void setTimestamp(LocalDateTime  timestamp) {
-        this.timestamp = timestamp;
+        this.timeOfPurchase = timestamp;
     }
 
     public double getSubtotal() {
@@ -121,6 +146,6 @@ public class Receipt {
         this.total = total;
     }
     public void finishTransaction() {
-        timestamp = LocalDateTime.now();
+        timeOfPurchase = LocalDateTime.now();
     }
 }

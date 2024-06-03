@@ -6,7 +6,6 @@ import lt.viko.eif.pvaiciulis.storedata.model.discount.Discount;
 import lt.viko.eif.pvaiciulis.storedata.model.discount.DiscountCard;
 import lt.viko.eif.pvaiciulis.storedata.model.discount.DiscountCardCategory;
 import lt.viko.eif.pvaiciulis.storedata.model.product.EntityProduct;
-import lt.viko.eif.pvaiciulis.storedata.old.Student;
 import lt.viko.eif.pvaiciulis.storedata.model.product.AmountType;
 import lt.viko.eif.pvaiciulis.storedata.model.product.QuantifiableProduct;
 import lt.viko.eif.pvaiciulis.storedata.util.HibernateUtil;
@@ -30,6 +29,12 @@ public class DBLoader {
 
         QuantifiableProduct rubiksCube = new QuantifiableProduct("Rubiks cube",
                 2098744513, 4.99, AmountType.amount, 1);
+
+        QuantifiableProduct chips = new QuantifiableProduct("Chips",
+                2098741285, 4.5, AmountType.amount, 2);
+
+        QuantifiableProduct banana = new QuantifiableProduct("Banana",
+                2098744413, 1.2, AmountType.kg, 1.2);
 
         Person person1 = new Person("Paulius", "Vaiciulis", "+37069744323", Date.valueOf("2002-05-31"));
         DiscountCard discountCard = new DiscountCard(DiscountCardCategory.Member, person1);
@@ -55,6 +60,8 @@ public class DBLoader {
             session.save(person1);
             session.save(steakDiscount);
             session.save(rubiksCubeDiscount);
+            session.save(chips);
+            session.save(banana);
 
             transaction.commit();
         } catch (Exception e) {
@@ -83,64 +90,5 @@ public class DBLoader {
         } finally {
             server.shutdown();
         }
-    }
-    public static void loadStudents() {
-        List<Student> result = new ArrayList<>();
-        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
-            List<Student> students = session.createQuery("from Student", Student.class).list();
-            students.forEach(stud -> System.out.println(stud));
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public static EntityProduct getProduct(int barCode) {
-        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
-            List<EntityProduct> result = session.createQuery("from EntityProduct WHERE barCode = " + barCode, EntityProduct.class).list();
-
-            System.out.println(result.isEmpty());
-
-            if(result.isEmpty()) return null;
-
-            System.out.println(result.get(0).getClass());
-
-            return result.get(0);
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    public static Boolean barcodeExists(int barCode) {
-        EntityProduct product = getProduct(barCode);
-        if(product == null) return false;
-        else return true;
-    }
-
-    public static List<Receipt> getReceipts() {
-        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
-            List<Receipt> result = session.createQuery("from Receipt", Receipt.class).list();
-
-            if(result.isEmpty()) return null;
-            return result;
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    public static Discount checkDiscount(EntityProduct product) {
-        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
-            List<Discount> result = session.createQuery("SELECT d FROM Discount d WHERE d.discountedProduct.id = " + product.getId(), Discount.class).list();
-
-            if(result.isEmpty()) return null;
-            System.out.println(result.get(0));
-            System.out.println(result.get(0).getDiscountPrice());
-            return result.get(0);
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

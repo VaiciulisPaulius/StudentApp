@@ -33,13 +33,6 @@
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
-
-        <!--        <dependency>-->
-<!--            <groupId>mysq</groupId>-->
-<!--        </dependency>-->
-
-
-
     </dependencies>
 
 </project>

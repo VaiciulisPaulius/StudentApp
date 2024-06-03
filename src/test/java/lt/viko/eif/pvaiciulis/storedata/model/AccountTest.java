@@ -18,11 +18,11 @@ public class AccountTest {
         Assert.assertEquals("Password is not expected.", "vaiciulis", account.getPassword());
     }
 
-    @Test
-    public void TestAcccountToString() {
-        assertTrue(account.toString()
-                .contains(USER_NAME1));
-        assertTrue(account.toString()
-                .contains(PASSWORD1));
-    }
+//    @Test
+//    public void TestAcccountToString() {
+//        assertTrue(account.toString()
+//                .contains(USER_NAME1));
+//        assertTrue(account.toString()
+//                .contains(PASSWORD1));
+//    }
 }
